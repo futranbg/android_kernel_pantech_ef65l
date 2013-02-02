@@ -3125,6 +3125,11 @@ static struct platform_device hdmi_msm_device = {
 #endif /* CONFIG_FB_MSM_HDMI_MSM_PANEL */
 
 #ifdef CONFIG_FB_MSM_MIPI_DSI
+static struct platform_device mipi_dsi_sony_panel_device = {
+	.name = "mipi_sony",
+	.id = 0,
+};
+
 static struct platform_device mipi_dsi_toshiba_panel_device = {
 	.name = "mipi_toshiba",
 	.id = 0,
@@ -5307,6 +5312,7 @@ static struct platform_device *surf_devices[] __initdata = {
 	&hdmi_msm_device,
 #endif /* CONFIG_FB_MSM_HDMI_MSM_PANEL */
 #ifdef CONFIG_FB_MSM_MIPI_DSI
+	&mipi_dsi_sony_panel_device,
 	&mipi_dsi_toshiba_panel_device,
 	&mipi_dsi_novatek_panel_device,
 #endif
