@@ -6107,6 +6107,41 @@ static struct pm8xxx_keypad_platform_data dragon_keypad_data = {
 	.keymap_data = &dragon_keymap_data,
 };
 
+static const unsigned int ef65l_keymap[] = {
+	KEY(0, 0, KEY_VOLUMEUP), 	// DRV1, SNS1 : Volume Up
+	KEY(0, 1, KEY_VOLUMEDOWN), 	// DRV1, SNS2 : Volume Down
+	KEY(0, 2, KEY_SEARCH), 		// DRV1, SNS3 : Search
+
+	// 2011.07.22 by wcjeong - wS10 Touch ̵
+	// KEY(0, 3, KEY_HOME),		// DRV1, SNS4 : Home
+	
+	KEY(1, 0, KEY_VOLUMEDOWN),	// DRV2, SNS3 : Nothing
+	KEY(1, 1, KEY_UNKNOWN), 	// DRV2, SNS2 : Nothing
+	KEY(1, 2, KEY_UNKNOWN), 	// DRV2, SNS3 : Nothing
+	KEY(1, 3, KEY_UNKNOWN),
+
+	KEY(2, 3, KEY_UNKNOWN),
+};
+
+static struct matrix_keymap_data ef65l_keymap_data = {
+	.keymap_size	= ARRAY_SIZE(ef65l_keymap),
+	.keymap		= ef65l_keymap,
+};
+
+static struct pm8xxx_keypad_platform_data ef65l_keypad_data = {
+	.input_name		= "surf-keypad",
+	.input_phys_device	= "surf-keypad/input0",
+	.num_rows		= 6,
+	.num_cols		= 5,
+	.rows_gpio_start	= PM8058_GPIO_PM_TO_SYS(8),
+	.cols_gpio_start	= PM8058_GPIO_PM_TO_SYS(0),
+	.debounce_ms		= 15,
+	.scan_delay_ms		= 32,
+	.row_hold_ns            = 91500,
+	.wakeup			= 1,
+	.keymap_data		= &ef65l_keymap_data,
+};
+
 static const unsigned int fluid_keymap[] = {
 	KEY(0, 0, KEY_FN_F1),	 /* LS - PUSH1 */
 	KEY(0, 1, KEY_UP),	 /* NAV - UP */
@@ -10448,6 +10483,8 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 		pm8058_platform_data.keypad_pdata = &fluid_keypad_data;
 	else if (machine_is_msm8x60_dragon())
 		pm8058_platform_data.keypad_pdata = &dragon_keypad_data;
+	else if (machine_is_msm8x60_ef65l())
+		pm8058_platform_data.keypad_pdata = &ef65l_keypad_data;
 	else
 		pm8058_platform_data.keypad_pdata = &ffa_keypad_data;
 #if !defined(CONFIG_MSM_CAMERA_V4L2) && defined(CONFIG_WEBCAM_OV9726)
