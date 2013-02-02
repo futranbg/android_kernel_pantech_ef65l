@@ -2687,7 +2687,8 @@ void __init msm_snddev_init(void)
 		platform_add_devices(snd_devices_surf,
 		ARRAY_SIZE(snd_devices_surf));
 	} else if (machine_is_msm8x60_ffa() ||
-			machine_is_msm8x60_fusn_ffa()) {
+			machine_is_msm8x60_fusn_ffa() ||
+			machine_is_msm8x60_ef65l()) {
 		for (i = 0; i < ARRAY_SIZE(snd_devices_ffa); i++)
 			snd_devices_ffa[i]->id = dev_id++;
 
@@ -2702,7 +2703,8 @@ void __init msm_snddev_init(void)
 	}
 	if (machine_is_msm8x60_surf() || machine_is_msm8x60_ffa()
 		|| machine_is_msm8x60_fusion()
-		|| machine_is_msm8x60_fusn_ffa()) {
+		|| machine_is_msm8x60_fusn_ffa()
+		|| machine_is_msm8x60_ef65l()) {
 		for (i = 0; i < ARRAY_SIZE(snd_devices_ftm); i++)
 			snd_devices_ftm[i]->id = dev_id++;
 

@@ -1065,7 +1065,8 @@ static int msm_hsusb_pmic_id_notif_init(void (*callback)(int online), int init)
 	}
 
 	if ((machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa() ||
-			machine_is_msm8x60_ffa()) && !pmic_id_notif_supported) {
+			machine_is_msm8x60_ffa() || machine_is_msm8x60_ef65l()) &&
+			!pmic_id_notif_supported) {
 		pr_debug("%s: USB_ID is not routed to PMIC"
 			"on V2 ffa\n", __func__);
 		return -ENOTSUPP;
@@ -1360,7 +1361,12 @@ static int msm_hsusb_pmic_vbus_notif_init(void (*callback)(int online),
 	int ret = -ENOTSUPP;
 
 #if defined(CONFIG_SMB137B_CHARGER) || defined(CONFIG_SMB137B_CHARGER_MODULE)
-	if (machine_is_msm8x60_fluid()) {
+	if (machine_is_msm8x60_fluid()
+#if 0
+//why add machine_is_msm8x60_ef65l() here,WTF--suky
+		|| machine_is_msm8x60_ef65l()
+#endif
+) {
 		if (init)
 			msm_charger_register_vbus_sn(callback);
 		else
@@ -1695,7 +1701,8 @@ static int config_camera_on_gpios(void)
 
 #ifdef CONFIG_MSM_CAMERA_FLASH
 #ifdef CONFIG_IMX074
-	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa())
+	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa() ||
+		machine_is_msm8x60_ef65l())
 		strobe_flash_xenon.flash_charge = FUSION_VFE_CAMIF_TIMER1_GPIO;
 #endif
 #endif
@@ -5941,7 +5948,8 @@ static int pm8058_gpios_init(void)
 #if defined(CONFIG_TOUCHDISC_VTD518_SHINETSU) || \
 		defined(CONFIG_TOUCHDISC_VTD518_SHINETSU_MODULE)
 	if (machine_is_msm8x60_ffa() || machine_is_msm8x60_surf() ||
-		machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa()) {
+		machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa() ||
+		machine_is_msm8x60_ef65l()) {
 		rc = pm8xxx_gpio_config(
 			PM8058_GPIO_PM_TO_SYS(PMIC_GPIO_TOUCH_DISC_INTR),
 			&touchdisc_intr_gpio_cfg);
@@ -5956,7 +5964,7 @@ static int pm8058_gpios_init(void)
 	/* Line_in only for 8660 ffa & surf */
 	if (machine_is_msm8x60_ffa() || machine_is_msm8x60_surf() ||
 		machine_is_msm8x60_fusion() || machine_is_msm8x60_dragon() ||
-		machine_is_msm8x60_fusn_ffa()) {
+		machine_is_msm8x60_fusn_ffa() || machine_is_msm8x60_ef65l()) {
 		rc = pm8xxx_gpio_config(line_in_gpio_cfg.gpio,
 				&line_in_gpio_cfg.cfg);
 		if (rc < 0) {
@@ -6314,7 +6322,7 @@ static void __init msm8x60_init_pm8058_othc(void)
 
 	if (SOCINFO_VERSION_MAJOR(socinfo_get_version()) == 2 ||
 		machine_is_msm8x60_fluid() || machine_is_msm8x60_fusion() ||
-		machine_is_msm8x60_fusn_ffa()) {
+		machine_is_msm8x60_fusn_ffa() || machine_is_msm8x60_ef65l()) {
 		/* 3-switch headset supported only by V2 FFA and FLUID */
 		hsed_config_1.accessories_adc_support = true,
 		/* ADC based accessory detection works only on V2 and FLUID */
@@ -7436,7 +7444,7 @@ static void __init fixup_i2c_configs(void)
 		sx150x_data[SX150X_CORE].irq_summary =
 			PM8058_GPIO_IRQ(PM8058_IRQ_BASE, UI_INT2_N);
 	else if (machine_is_msm8x60_ffa() || machine_is_msm8x60_fusn_ffa() ||
-		machine_is_msm8x60_dragon())
+		machine_is_msm8x60_dragon() || machine_is_msm8x60_ef65l())
 		sx150x_data[SX150X_CORE].irq_summary =
 			PM8058_GPIO_IRQ(PM8058_IRQ_BASE, UI_INT1_N);
 	else if (machine_is_msm8x60_fluid())
@@ -7463,7 +7471,8 @@ static void __init register_i2c_devices(void)
 	/* Build the matching 'supported_machs' bitmask */
 	if (machine_is_msm8x60_surf() || machine_is_msm8x60_fusion())
 		mach_mask = I2C_SURF;
-	else if (machine_is_msm8x60_ffa() || machine_is_msm8x60_fusn_ffa())
+	else if (machine_is_msm8x60_ffa() || machine_is_msm8x60_fusn_ffa() ||
+		machine_is_msm8x60_ef65l())
 		mach_mask = I2C_FFA;
 	else if (machine_is_msm8x60_rumi3())
 		mach_mask = I2C_RUMI;
@@ -7533,7 +7542,8 @@ static void __init msm8x60_init_buses(void)
 	msm_gsbi8_qup_i2c_device.dev.platform_data = &msm_gsbi8_qup_i2c_pdata;
 
 #ifdef CONFIG_MSM_GSBI9_UART
-	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa()) {
+	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa() ||
+		machine_is_msm8x60_ef65l()) {
 		/* Setting protocol code to 0x60 for dual UART/I2C in GSBI9 */
 		gsbi_mem = ioremap_nocache(MSM_GSBI9_PHYS, 4);
 		writel_relaxed(GSBI_DUAL_MODE_CODE, gsbi_mem);
@@ -7594,7 +7604,8 @@ static void __init msm8x60_init_buses(void)
 	msm_device_uart_dm1.dev.platform_data = &msm_uart_dm1_pdata;
 #endif
 #ifdef CONFIG_MSM_GSBI9_UART
-	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa()) {
+	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa() ||
+		machine_is_msm8x60_ef65l()) {
 		msm_device_uart_gsbi9 = msm_add_gsbi9_uart();
 		if (IS_ERR(msm_device_uart_gsbi9))
 			pr_err("%s(): Failed to create uart gsbi9 device\n",
@@ -8385,7 +8396,8 @@ static irqreturn_t msm8x60_multi_sdio_slot_status_irq(int irq, void *dev_id)
 	int status;
 
 	if (!machine_is_msm8x60_fusion() &&
-	    !machine_is_msm8x60_fusn_ffa())
+	    !machine_is_msm8x60_fusn_ffa() &&
+		!machine_is_msm8x60_ef65l())
 		return IRQ_NONE;
 
 	status = gpio_get_value(MDM2AP_SYNC);
@@ -8415,7 +8427,8 @@ static int msm8x60_multi_sdio_init(void)
 	int ret, irq_num;
 
 	if (!machine_is_msm8x60_fusion() &&
-	    !machine_is_msm8x60_fusn_ffa())
+	    !machine_is_msm8x60_fusn_ffa() &&
+		!machine_is_msm8x60_ef65l())
 		return 0;
 
 	ret = msm_gpiomux_get(MDM2AP_SYNC);
@@ -8587,7 +8600,8 @@ static void __init msm8x60_init_mmc(void)
 
 	if (machine_is_msm8x60_fusion())
 		msm8x60_sdc2_data.msmsdcc_fmax = 24000000;
-	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa()) {
+	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa() ||
+		machine_is_msm8x60_ef65l()) {
 		msm8x60_sdc2_data.sdiowakeup_irq = gpio_to_irq(144);
 		msm_sdcc_setup_gpio(2, 1);
 		msm_add_sdcc(2, &msm8x60_sdc2_data);
@@ -8649,7 +8663,8 @@ static void __init msm8x60_init_mmc(void)
 
 	if (machine_is_msm8x60_fusion())
 		msm8x60_sdc5_data.msmsdcc_fmax = 24000000;
-	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa()) {
+	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa() ||
+		machine_is_msm8x60_ef65l()) {
 		msm8x60_sdc5_data.sdiowakeup_irq = gpio_to_irq(99);
 		msm_sdcc_setup_gpio(5, 1);
 		msm_add_sdcc(5, &msm8x60_sdc5_data);
@@ -8742,19 +8757,20 @@ static void setup_display_power(void)
 			gpio_set_value_cansleep(GPIO_LVDS_SHUTDOWN_N, 0);
 			gpio_set_value_cansleep(GPIO_BACKLIGHT_EN, 0);
 			if (machine_is_msm8x60_ffa() ||
-			    machine_is_msm8x60_fusn_ffa())
+			    machine_is_msm8x60_fusn_ffa() || machine_is_msm8x60_ef65l())
 				gpio_set_value_cansleep(GPIO_DONGLE_PWR_EN, 1);
 		} else {
 			dsub_regulator(0);
 			gpio_set_value_cansleep(GPIO_LVDS_SHUTDOWN_N, 1);
 			gpio_set_value_cansleep(GPIO_BACKLIGHT_EN, 1);
 			if (machine_is_msm8x60_ffa() ||
-			    machine_is_msm8x60_fusn_ffa())
+			    machine_is_msm8x60_fusn_ffa() || machine_is_msm8x60_ef65l())
 				gpio_set_value_cansleep(GPIO_DONGLE_PWR_EN, 0);
 		}
 	else {
 		dsub_regulator(0);
-		if (machine_is_msm8x60_ffa() || machine_is_msm8x60_fusn_ffa())
+		if (machine_is_msm8x60_ffa() || machine_is_msm8x60_fusn_ffa() ||
+		machine_is_msm8x60_ef65l())
 			gpio_set_value_cansleep(GPIO_DONGLE_PWR_EN, 0);
 		/* BACKLIGHT */
 		gpio_set_value_cansleep(GPIO_BACKLIGHT_EN, 0);
@@ -8782,7 +8798,8 @@ static void display_common_power(int on)
 	static struct regulator *display_reg;
 
 	if (machine_is_msm8x60_surf() || machine_is_msm8x60_ffa() ||
-	    machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa()) {
+	    machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa() ||
+		machine_is_msm8x60_ef65l()) {
 		if (on) {
 			/* LVDS */
 			_GET_REGULATOR(display_reg, "8901_l2");
@@ -8814,7 +8831,8 @@ static void display_common_power(int on)
 			}
 
 			if (machine_is_msm8x60_ffa() ||
-			    machine_is_msm8x60_fusn_ffa()) {
+			    machine_is_msm8x60_fusn_ffa() ||
+				machine_is_msm8x60_ef65l()) {
 				rc = gpio_request(GPIO_DONGLE_PWR_EN,
 						  "DONGLE_PWR_EN");
 				if (rc) {
@@ -8828,7 +8846,8 @@ static void display_common_power(int on)
 			gpio_direction_output(GPIO_LVDS_SHUTDOWN_N, 0);
 			gpio_direction_output(GPIO_BACKLIGHT_EN, 0);
 			if (machine_is_msm8x60_ffa() ||
-			    machine_is_msm8x60_fusn_ffa())
+			    machine_is_msm8x60_fusn_ffa() ||
+				machine_is_msm8x60_ef65l())
 				gpio_direction_output(GPIO_DONGLE_PWR_EN, 0);
 			mdelay(20);
 			display_power_on = 1;
@@ -8839,7 +8858,8 @@ static void display_common_power(int on)
 				setup_display_power();
 				mdelay(20);
 				if (machine_is_msm8x60_ffa() ||
-				    machine_is_msm8x60_fusn_ffa())
+				    machine_is_msm8x60_fusn_ffa() ||
+					machine_is_msm8x60_ef65l())
 					gpio_free(GPIO_DONGLE_PWR_EN);
 				goto out4;
 			}
@@ -10440,7 +10460,8 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 #ifdef CONFIG_BATTERY_MSM8X60
 	if (machine_is_msm8x60_surf() || machine_is_msm8x60_ffa() ||
 		machine_is_msm8x60_fusion() || machine_is_msm8x60_dragon() ||
-		machine_is_msm8x60_fusn_ffa() || machine_is_msm8x60_fluid())
+		machine_is_msm8x60_fusn_ffa() || machine_is_msm8x60_fluid() ||
+		machine_is_msm8x60_ef65l())
 		platform_device_register(&msm_charger_device);
 #endif
 
@@ -10458,13 +10479,14 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 		pm8058_platform_data.leds_pdata = &pm8058_flash_leds_data;
 
 	if (machine_is_msm8x60_ffa() || machine_is_msm8x60_fusn_ffa() ||
-		machine_is_msm8x60_dragon()) {
+		machine_is_msm8x60_dragon() || machine_is_msm8x60_ef65l()) {
 		pm8058_platform_data.vibrator_pdata = &pm8058_vib_pdata;
 	}
 
 	if (machine_is_msm8x60_surf() || machine_is_msm8x60_ffa() ||
 	    machine_is_msm8x60_fluid() || machine_is_msm8x60_fusion() ||
-	    machine_is_msm8x60_fusn_ffa() || machine_is_msm8x60_dragon()) {
+	    machine_is_msm8x60_fusn_ffa() || machine_is_msm8x60_dragon() ||
+		machine_is_msm8x60_ef65l()) {
 		msm8x60_cfg_smsc911x();
 		if (SOCINFO_VERSION_MAJOR(socinfo_get_version()) != 1)
 			platform_add_devices(msm8660_footswitch,
@@ -10512,7 +10534,8 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 		msm8x60_cfg_isp1763();
 #endif
 
-	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa())
+	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa() ||
+		machine_is_msm8x60_ef65l())
 		platform_add_devices(charm_devices, ARRAY_SIZE(charm_devices));
 
 
@@ -10592,7 +10615,8 @@ static void __init msm8x60_init(struct msm_board_data *board_data)
 
 	msm8x60_multi_sdio_init();
 
-	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa())
+	if (machine_is_msm8x60_fusion() || machine_is_msm8x60_fusn_ffa() ||
+		machine_is_msm8x60_ef65l())
 		msm_fusion_setup_pinctrl();
 }
 
@@ -10727,4 +10751,14 @@ MACHINE_START(MSM8X60_DRAGON, "QCT MSM8X60 DRAGON")
 	.timer = &msm_timer,
 	.init_early = msm8x60_charm_init_early,
 	.restart = msm_restart,
+MACHINE_END
+
+MACHINE_START(MSM8X60_EF65L, "PANTECH MSM8X60 EF65L")
+	.map_io = msm8x60_map_io,
+	.reserve = msm8x60_reserve,
+	.init_irq = msm8x60_init_irq,
+	.handle_irq = gic_handle_irq,
+	.init_machine = msm8x60_charm_ffa_init,
+	.timer = &msm_timer,
+	.init_early = msm8x60_charm_init_early,
 MACHINE_END
